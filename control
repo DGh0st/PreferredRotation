@@ -1,7 +1,7 @@
 Package: com.dgh0st.preferredrotation
 Name: PreferredRotation
 Depends: mobilesubstrate, preferenceloader, applist
-Version: 0.0.1
+Version: 0.0.2
 Architecture: iphoneos-arm
 Description: Forces device to only rotate to preferred orientation.
 Maintainer: DGh0st <deeppwnage@yahoo.com>

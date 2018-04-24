@@ -218,6 +218,22 @@ static BOOL isForceLandscapeVideosEnabled = YES;
 %end
 %end
 
+%group inboxApp
+%hook BigtopRootContainerViewController
+-(UIInterfaceOrientationMask)supportedInterfaceOrientations {
+	if (isEnabled && !isDisabledInCurrentApp)
+		return %orig() & ~UIInterfaceOrientationMaskLandscape;
+	return %orig();
+}
+
+-(UIInterfaceOrientation)preferredInterfaceOrientationForPresentation {
+	if (isEnabled && !isDisabledInCurrentApp)
+		return UIInterfaceOrientationPortrait;
+	return %orig();
+}
+%end
+%end
+
 static void reloadPrefs() {
 	CFPreferencesAppSynchronize((CFStringRef)kIdentifier);
 
@@ -244,7 +260,8 @@ static void reloadPrefs() {
 }
 
 %dtor {
-	CFNotificationCenterRemoveObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, kSettingsChangedNotification, NULL);
+	if (![[NSBundle mainBundle].bundleIdentifier isEqualToString:@"com.amazon.Amazon"]) // because amazon app causes crashes for some reason
+		CFNotificationCenterRemoveObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, kSettingsChangedNotification, NULL);
 }
 
 %ctor {
@@ -262,11 +279,16 @@ static void reloadPrefs() {
 				} else if ([execPath rangeOfString:@"/Application"].location != NSNotFound) { // applications
 					// YouTube, apparently doesn't need to be excluded as it has its own implementation of rotation for video
 					// only initialize tweak if it isn't an excluded app (improve performance and stuff)
-					%init(allApps);
-					if (!isDisabledInCurrentApp)
-						%init(applications);
-					if (isForceLandscapeVideosEnabled)
-						%init(fullscreenVideos);
+					if ([[NSBundle mainBundle].bundleIdentifier isEqualToString:@"com.google.inbox"]) {
+						if (!isDisabledInCurrentApp)
+							%init(inboxApp);
+					} else {
+						%init(allApps);
+						if (!isDisabledInCurrentApp)
+							%init(applications);
+						if (isForceLandscapeVideosEnabled)
+							%init(fullscreenVideos);
+					}
 				}
 			}
 		}
