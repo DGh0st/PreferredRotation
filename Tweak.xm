@@ -243,11 +243,11 @@ static void reloadPrefs() {
 		if (keyList != nil) {
 			prefs = (NSDictionary *)CFPreferencesCopyMultiple(keyList, (CFStringRef)kIdentifier, kCFPreferencesCurrentUser, kCFPreferencesAnyHost);
 			if (prefs == nil)
-				prefs = [NSDictionary dictionary];
+				prefs = [NSDictionary new];
 			CFRelease(keyList);
 		}
 	} else {
-		prefs = [NSDictionary dictionaryWithContentsOfFile:kSettingsPath];
+		prefs = [[NSDictionary alloc] initWithContentsOfFile:kSettingsPath];
 	}
 
 	isEnabled = [prefs objectForKey:@"isEnabled"] ? [[prefs objectForKey:@"isEnabled"] boolValue] : YES;
@@ -257,6 +257,8 @@ static void reloadPrefs() {
 	NSString *appKeyId = [NSString stringWithFormat:@"Disabled-%@", appId];
 	isDisabledInCurrentApp = [prefs objectForKey:appKeyId] ? [[prefs objectForKey:appKeyId] boolValue] : NO;
 	isForceLandscapeVideosEnabled = [prefs objectForKey:@"isForceLandscapeVideosEnabled"] ? [[prefs objectForKey:@"isForceLandscapeVideosEnabled"] boolValue] : YES;
+
+	[prefs release];
 }
 
 %dtor {
